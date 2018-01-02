@@ -1,0 +1,7 @@
+# channel config directory
+*.tx
+*.block
+
+# crypto config directory
+crypto-config/
+
