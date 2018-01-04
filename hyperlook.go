@@ -8,8 +8,9 @@ import (
 
 func main() {
 	fmt.Print("Hello, world!")
-	var a cadvisor.ImageFsInfoProvider
-	cadvisor.New("0.0.0.0", 1099, a,"/", false)
+	var ip * string
+	*ip = "0.0.0.0"
+	cadvisor.New(ip, 1099)
 
-	time.Sleep(300*time.Second)
+	time.Sleep(30*time.Minute)
 }
