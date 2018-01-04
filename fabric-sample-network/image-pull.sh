@@ -8,7 +8,7 @@ FABRIC_TAG="$MARCH-$VERSION"
 
 dockerFabricPull() {
   local FABRIC_TAG=$1
-  for IMAGES in peer orderer couchdb ccenv javaenv kafka zookeeper tools; do
+  for IMAGES in peer orderer ca couchdb ccenv javaenv kafka zookeeper tools; do
       echo "==> FABRIC IMAGE: $IMAGES"
       echo
       docker pull hyperledger/fabric-$IMAGES:$FABRIC_TAG
