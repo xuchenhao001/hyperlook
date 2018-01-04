@@ -1,17 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"github.com/xuchenhao001/Hyperlook/cadvisor"
 	"time"
 	"flag"
 )
 
 var argIp = flag.String("listen_ip", "", "IP to listen on, defaults to all IPs")
-var argPort = flag.Int("port", 8080, "port to listen")
+var argPort = flag.Int("port", 1001, "port to listen")
 
 func main() {
-	fmt.Print("Hello, world!")
+	flag.Parse()
 
 	cadvisor.New(argIp, argPort)
 

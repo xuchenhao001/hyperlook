@@ -1,17 +1,3 @@
-// Copyright 2014 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cadvisor
 
 import (
@@ -40,24 +26,34 @@ import (
 
 //var argIp = flag.String("listen_ip", "", "IP to listen on, defaults to all IPs")
 //var argPort = flag.Int("port", 8080, "port to listen")
-var maxProcs = flag.Int("max_procs", 0, "max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).")
 
-var versionFlag = flag.Bool("version", false, "print cAdvisor version and exit")
+// var maxProcs = flag.Int("max_procs", 0, "max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).")
+// var versionFlag = flag.Bool("version", false, "print cAdvisor version and exit")
+// var httpAuthFile = flag.String("http_auth_file", "", "HTTP auth file for the web UI")
+// var httpAuthRealm = flag.String("http_auth_realm", "localhost", "HTTP auth realm for the web UI")
+// var httpDigestFile = flag.String("http_digest_file", "", "HTTP digest file for the web UI")
+// var httpDigestRealm = flag.String("http_digest_realm", "localhost", "HTTP digest file for the web UI")
+// var prometheusEndpoint = flag.String("prometheus_endpoint", "/metrics", "Endpoint to expose Prometheus metrics on")
+// var maxHousekeepingInterval = flag.Duration("max_housekeeping_interval", 60*time.Second, "Largest interval to allow between container housekeepings")
+// var allowDynamicHousekeeping = flag.Bool("allow_dynamic_housekeeping", true, "Whether to allow the housekeeping interval to be dynamic")
+// var enableProfiling = flag.Bool("profiling", false, "Enable profiling via web interface host:port/debug/pprof/")
+// var collectorCert = flag.String("collector_cert", "", "Collector's certificate, exposed to endpoints for certificate based authentication.")
+// var collectorKey = flag.String("collector_key", "", "Key for the collector's certificate")
 
-var httpAuthFile = flag.String("http_auth_file", "", "HTTP auth file for the web UI")
-var httpAuthRealm = flag.String("http_auth_realm", "localhost", "HTTP auth realm for the web UI")
-var httpDigestFile = flag.String("http_digest_file", "", "HTTP digest file for the web UI")
-var httpDigestRealm = flag.String("http_digest_realm", "localhost", "HTTP digest file for the web UI")
-
-var prometheusEndpoint = flag.String("prometheus_endpoint", "/metrics", "Endpoint to expose Prometheus metrics on")
-
-var maxHousekeepingInterval = flag.Duration("max_housekeeping_interval", 60*time.Second, "Largest interval to allow between container housekeepings")
-var allowDynamicHousekeeping = flag.Bool("allow_dynamic_housekeeping", true, "Whether to allow the housekeeping interval to be dynamic")
-
-var enableProfiling = flag.Bool("profiling", false, "Enable profiling via web interface host:port/debug/pprof/")
-
-var collectorCert = flag.String("collector_cert", "", "Collector's certificate, exposed to endpoints for certificate based authentication.")
-var collectorKey = flag.String("collector_key", "", "Key for the collector's certificate")
+var(
+	maxProcs *int
+	versionFlag *bool
+	httpAuthFile *string
+	httpAuthRealm *string
+	httpDigestFile *string
+	httpDigestRealm *string
+	prometheusEndpoint *string
+	maxHousekeepingInterval *time.Duration
+	allowDynamicHousekeeping *bool
+	enableProfiling *bool
+	collectorCert *string
+	collectorKey *string
+)
 
 var (
 	// Metrics to be ignored.
@@ -116,7 +112,18 @@ func init() {
 }
 
 func New(argIp *string, argPort *int) {
-	flag.Parse()
+	*maxProcs = 0
+	*versionFlag = false
+	*httpAuthFile = ""
+	*httpAuthRealm = "localhost"
+	*httpDigestFile = ""
+	*httpDigestRealm = "localhost"
+	*prometheusEndpoint = "/metrics"
+	*maxHousekeepingInterval = 60*time.Second
+	*allowDynamicHousekeeping = true
+	*enableProfiling = false
+	*collectorCert = ""
+	*collectorKey = ""
 
 	if *versionFlag {
 		fmt.Printf("cAdvisor version %s (%s)\n", version.Info["version"], version.Info["revision"])
