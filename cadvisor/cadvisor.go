@@ -41,18 +41,18 @@ import (
 // var collectorKey = flag.String("collector_key", "", "Key for the collector's certificate")
 
 var(
-	maxProcs *int
-	versionFlag *bool
-	httpAuthFile *string
-	httpAuthRealm *string
-	httpDigestFile *string
-	httpDigestRealm *string
-	prometheusEndpoint *string
-	maxHousekeepingInterval *time.Duration
-	allowDynamicHousekeeping *bool
-	enableProfiling *bool
-	collectorCert *string
-	collectorKey *string
+	maxProcs = new(int)
+	versionFlag = new(bool)
+	httpAuthFile = new(string)
+	httpAuthRealm = new(string)
+	httpDigestFile = new(string)
+	httpDigestRealm = new(string)
+	prometheusEndpoint = new(string)
+	maxHousekeepingInterval = new(time.Duration)
+	allowDynamicHousekeeping = new(bool)
+	enableProfiling = new(bool)
+	collectorCert = new(string)
+	collectorKey = new(string)
 )
 
 var (
