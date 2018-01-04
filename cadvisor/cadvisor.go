@@ -116,7 +116,7 @@ func init() {
 	flag.Set("v", "2")
 }
 
-func New(argIp *string, argPort int, ) {
+func New(argIp *string, argPort *int) {
 	defer glog.Flush()
 	flag.Parse()
 
