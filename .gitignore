@@ -1,3 +1,6 @@
+# IDEA config
+.idea/
+
 # channel config directory
 *.tx
 *.block
