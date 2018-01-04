@@ -17,6 +17,7 @@ package cadvisor
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -35,8 +36,6 @@ import (
 	"github.com/google/cadvisor/version"
 
 	"crypto/tls"
-
-	"github.com/golang/glog"
 )
 
 //var argIp = flag.String("listen_ip", "", "IP to listen on, defaults to all IPs")
@@ -117,7 +116,6 @@ func init() {
 }
 
 func New(argIp *string, argPort *int) {
-	defer glog.Flush()
 	flag.Parse()
 
 	if *versionFlag {
@@ -129,7 +127,7 @@ func New(argIp *string, argPort *int) {
 
 	memoryStorage, err := NewMemoryStorage()
 	if err != nil {
-		glog.Fatalf("Failed to initialize storage driver: %s", err)
+		log.Printf("Failed to initialize storage driver: %s", err)
 	}
 
 	sysFs := sysfs.NewRealSysFs()
@@ -138,7 +136,7 @@ func New(argIp *string, argPort *int) {
 
 	containerManager, err := manager.New(memoryStorage, sysFs, *maxHousekeepingInterval, *allowDynamicHousekeeping, ignoreMetrics.MetricSet, &collectorHttpClient)
 	if err != nil {
-		glog.Fatalf("Failed to create a Container Manager: %s", err)
+		log.Printf("Failed to create a Container Manager: %s", err)
 	}
 
 	mux := http.NewServeMux()
@@ -153,23 +151,23 @@ func New(argIp *string, argPort *int) {
 	// Register all HTTP handlers.
 	err = cadvisorhttp.RegisterHandlers(mux, containerManager, *httpAuthFile, *httpAuthRealm, *httpDigestFile, *httpDigestRealm)
 	if err != nil {
-		glog.Fatalf("Failed to register HTTP handlers: %v", err)
+		log.Printf("Failed to register HTTP handlers: %v", err)
 	}
 
 	cadvisorhttp.RegisterPrometheusHandler(mux, containerManager, *prometheusEndpoint, nil)
 
 	// Start the manager.
 	if err := containerManager.Start(); err != nil {
-		glog.Fatalf("Failed to start container manager: %v", err)
+		log.Printf("Failed to start container manager: %v", err)
 	}
 
 	// Install signal handler.
 	installSignalHandler(containerManager)
 
-	glog.V(1).Infof("Starting cAdvisor version: %s-%s on port %d", version.Info["version"], version.Info["revision"], *argPort)
+	log.Printf("Starting cAdvisor version: %s-%s on port %d", version.Info["version"], version.Info["revision"], *argPort)
 
 	addr := fmt.Sprintf("%s:%d", *argIp, *argPort)
-	glog.Fatal(http.ListenAndServe(addr, mux))
+	http.ListenAndServe(addr, mux)
 }
 
 func setMaxProcs() {
@@ -186,7 +184,7 @@ func setMaxProcs() {
 	// Check if the setting was successful.
 	actualNumProcs := runtime.GOMAXPROCS(0)
 	if actualNumProcs != numProcs {
-		glog.Warningf("Specified max procs of %v but using %v", numProcs, actualNumProcs)
+		log.Printf("Specified max procs of %v but using %v", numProcs, actualNumProcs)
 	}
 }
 
@@ -198,9 +196,9 @@ func installSignalHandler(containerManager manager.Manager) {
 	go func() {
 		sig := <-c
 		if err := containerManager.Stop(); err != nil {
-			glog.Errorf("Failed to stop container manager: %v", err)
+			log.Printf("Failed to stop container manager: %v", err)
 		}
-		glog.Infof("Exiting given signal: %v", sig)
+		log.Printf("Exiting given signal: %v", sig)
 		os.Exit(0)
 	}()
 }
@@ -213,11 +211,11 @@ func createCollectorHttpClient(collectorCert, collectorKey string) http.Client {
 
 	if collectorCert != "" {
 		if collectorKey == "" {
-			glog.Fatal("The collector_key value must be specified if the collector_cert value is set.")
+			log.Printf("The collector_key value must be specified if the collector_cert value is set.")
 		}
 		cert, err := tls.LoadX509KeyPair(collectorCert, collectorKey)
 		if err != nil {
-			glog.Fatalf("Failed to use the collector certificate and key: %s", err)
+			log.Printf("Failed to use the collector certificate and key: %s", err)
 		}
 
 		tlsConfig.Certificates = []tls.Certificate{cert}
@@ -238,8 +236,8 @@ func NewMemoryStorage() (*memory.InMemoryCache, error) {
 		return nil, err
 	}
 	if *storageDriver != "" {
-		glog.V(1).Infof("Using backend storage type %q", *storageDriver)
+		log.Printf("Using backend storage type %q", *storageDriver)
 	}
-	glog.V(1).Infof("Caching stats in memory for %v", *storageDuration)
+	log.Printf("Caching stats in memory for %v", *storageDuration)
 	return memory.New(*storageDuration, backendStorage), nil
 }
