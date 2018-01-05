@@ -125,6 +125,9 @@ func New(argIp *string, argPort *int) {
 	*collectorCert = ""
 	*collectorKey = ""
 
+	// Just collect container information
+	flag.Set("docker_only", "true")
+
 	if *versionFlag {
 		fmt.Printf("cAdvisor version %s (%s)\n", version.Info["version"], version.Info["revision"])
 		os.Exit(0)

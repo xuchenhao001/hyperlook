@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/xuchenhao001/Hyperlook/cadvisor"
-	"time"
 	"flag"
 )
 
@@ -14,5 +13,4 @@ func main() {
 
 	cadvisor.New(argIp, argPort)
 
-	time.Sleep(30*time.Minute)
 }
