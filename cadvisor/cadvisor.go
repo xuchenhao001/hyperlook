@@ -9,49 +9,41 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"strings"
 	"syscall"
 	"time"
+	"crypto/tls"
 
-	"github.com/google/cadvisor/cache/memory"
 	"github.com/google/cadvisor/container"
 	cadvisorhttp "github.com/google/cadvisor/http"
 	"github.com/google/cadvisor/manager"
-	"github.com/google/cadvisor/storage"
 	"github.com/google/cadvisor/utils/sysfs"
 	"github.com/google/cadvisor/version"
-
-	"crypto/tls"
 )
 
-//var argIp = flag.String("listen_ip", "", "IP to listen on, defaults to all IPs")
-//var argPort = flag.Int("port", 8080, "port to listen")
-
-// var maxProcs = flag.Int("max_procs", 0, "max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).")
-// var versionFlag = flag.Bool("version", false, "print cAdvisor version and exit")
-// var httpAuthFile = flag.String("http_auth_file", "", "HTTP auth file for the web UI")
-// var httpAuthRealm = flag.String("http_auth_realm", "localhost", "HTTP auth realm for the web UI")
-// var httpDigestFile = flag.String("http_digest_file", "", "HTTP digest file for the web UI")
-// var httpDigestRealm = flag.String("http_digest_realm", "localhost", "HTTP digest file for the web UI")
-// var prometheusEndpoint = flag.String("prometheus_endpoint", "/metrics", "Endpoint to expose Prometheus metrics on")
-// var maxHousekeepingInterval = flag.Duration("max_housekeeping_interval", 60*time.Second, "Largest interval to allow between container housekeepings")
-// var allowDynamicHousekeeping = flag.Bool("allow_dynamic_housekeeping", true, "Whether to allow the housekeeping interval to be dynamic")
-// var enableProfiling = flag.Bool("profiling", false, "Enable profiling via web interface host:port/debug/pprof/")
-// var collectorCert = flag.String("collector_cert", "", "Collector's certificate, exposed to endpoints for certificate based authentication.")
-// var collectorKey = flag.String("collector_key", "", "Key for the collector's certificate")
-
 var(
+	// max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).
 	maxProcs = new(int)
+	// print cAdvisor version and exit
 	versionFlag = new(bool)
+	// HTTP auth file for the web UI
 	httpAuthFile = new(string)
+	// HTTP auth realm for the web UI
 	httpAuthRealm = new(string)
+	// HTTP digest file for the web UI
 	httpDigestFile = new(string)
+	// HTTP digest realm for the web UI
 	httpDigestRealm = new(string)
+	// Endpoint to expose Prometheus metrics on
 	prometheusEndpoint = new(string)
+	// Largest interval to allow between container housekeepings
 	maxHousekeepingInterval = new(time.Duration)
+	// Whether to allow the housekeeping interval to be dynamic
 	allowDynamicHousekeeping = new(bool)
+	// Enable profiling via web interface host:port/debug/pprof/
 	enableProfiling = new(bool)
+	// Collector's certificate, exposed to endpoints for certificate based authentication.
 	collectorCert = new(string)
+	// Key for the collector's certificate
 	collectorKey = new(string)
 )
 
@@ -71,38 +63,6 @@ var (
 		container.NetworkUdpUsageMetrics: struct{}{},
 	}
 )
-
-var (
-	storageDriver   = flag.String("storage_driver", "", fmt.Sprintf("Storage `driver` to use. Data is always cached shortly in memory, this controls where data is pushed besides the local cache. Empty means none. Options are: <empty>, %s", strings.Join(storage.ListDrivers(), ", ")))
-	storageDuration = flag.Duration("storage_duration", 2*time.Minute, "How long to keep data stored (Default: 2min).")
-)
-
-type metricSetValue struct {
-	container.MetricSet
-}
-
-func (ml *metricSetValue) String() string {
-	var values []string
-	for metric := range ml.MetricSet {
-		values = append(values, string(metric))
-	}
-	return strings.Join(values, ",")
-}
-
-func (ml *metricSetValue) Set(value string) error {
-	ml.MetricSet = container.MetricSet{}
-	if value == "" {
-		return nil
-	}
-	for _, metric := range strings.Split(value, ",") {
-		if ignoreWhitelist.Has(container.MetricKind(metric)) {
-			(*ml).Add(container.MetricKind(metric))
-		} else {
-			return fmt.Errorf("unsupported metric %q specified in disable_metrics", metric)
-		}
-	}
-	return nil
-}
 
 func init() {
 	flag.Var(&ignoreMetrics, "disable_metrics", "comma-separated list of `metrics` to be disabled. Options are 'disk', 'network', 'tcp', 'udp'. Note: tcp and udp are disabled by default due to high CPU usage.")
@@ -237,17 +197,4 @@ func createCollectorHttpClient(collectorCert, collectorKey string) http.Client {
 	}
 
 	return http.Client{Transport: transport}
-}
-
-// NewMemoryStorage creates a memory storage with an optional backend storage option.
-func NewMemoryStorage() (*memory.InMemoryCache, error) {
-	backendStorage, err := storage.New(*storageDriver)
-	if err != nil {
-		return nil, err
-	}
-	if *storageDriver != "" {
-		log.Printf("Using backend storage type %q", *storageDriver)
-	}
-	log.Printf("Caching stats in memory for %v", *storageDuration)
-	return memory.New(*storageDuration, backendStorage), nil
 }

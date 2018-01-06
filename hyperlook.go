@@ -12,5 +12,4 @@ func main() {
 	flag.Parse()
 
 	cadvisor.New(argIp, argPort)
-
 }
