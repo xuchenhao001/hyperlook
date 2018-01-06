@@ -8,3 +8,6 @@
 # crypto config directory
 crypto-config/
 
+# start network config
+docker-compose-e2e.yaml
+

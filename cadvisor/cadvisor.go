@@ -20,7 +20,7 @@ import (
 	"github.com/google/cadvisor/version"
 )
 
-var(
+var (
 	// max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).
 	maxProcs = new(int)
 	// print cAdvisor version and exit
@@ -79,7 +79,7 @@ func New(argIp *string, argPort *int) {
 	*httpDigestFile = ""
 	*httpDigestRealm = "localhost"
 	*prometheusEndpoint = "/metrics"
-	*maxHousekeepingInterval = 60*time.Second
+	*maxHousekeepingInterval = 60 * time.Second
 	*allowDynamicHousekeeping = true
 	*enableProfiling = false
 	*collectorCert = ""
