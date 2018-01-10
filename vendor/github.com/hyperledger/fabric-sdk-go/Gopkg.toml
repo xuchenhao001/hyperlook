@@ -1,0 +1,71 @@
+#
+# Copyright SecureKey Technologies Inc. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+[[constraint]]
+  name = "github.com/golang/mock"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  branch = "master"
+
+[[constraint]]
+  name = "google.golang.org/grpc"
+  version = "1.5.2"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  branch = "master"
+
+[[constraint]]
+  name = "golang.org/x/net"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/cloudflare/cfssl"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/golang/groupcache"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/Knetic/govaluate"
+  version = "3.0.0"
+
+[[constraint]]
+  name = "github.com/miekg/pkcs11"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/mitchellh/mapstructure"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  branch = "master"
+# Note: tagged version is old.
+# version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/spf13/cast"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/spf13/pflag"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "golang.org/x/crypto"
+  branch = "master"
+
+[[constraint]]
+  name = "golang.org/x/sync"
+  branch = "master"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  branch = "v2"

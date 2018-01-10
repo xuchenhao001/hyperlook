@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/xuchenhao001/Hyperlook/blockchainPerform/fabricSDK"
 	"github.com/xuchenhao001/Hyperlook/cadvisor"
 	"flag"
 )
@@ -11,5 +12,10 @@ var argPort = flag.Int("port", 2053, "port to listen")
 func main() {
 	flag.Parse()
 
-	cadvisor.New(argIp, argPort)
+	go func() {
+		cadvisor.New(argIp, argPort)
+	}()
+
+	fabricSDK.New()
+
 }
