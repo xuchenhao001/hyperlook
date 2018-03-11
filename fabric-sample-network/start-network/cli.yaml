@@ -1,0 +1,81 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cli
+  namespace: fabric-net
+  labels:
+    k8s-app: cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: cli
+  template:
+    metadata:
+      labels:
+        k8s-app: cli
+    spec:
+      containers:
+      - args:
+        - /bin/bash
+        - -c
+        - sleep 36000
+        env:
+        - name: CORE_LOGGING_LEVEL
+          value: DEBUG
+        - name: CORE_PEER_ADDRESS
+          value: peer0.org1.example.com:7051
+        - name: CORE_PEER_ID
+          value: cli
+        - name: CORE_PEER_LOCALMSPID
+          value: Org1MSP
+        - name: CORE_PEER_MSPCONFIGPATH
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+        - name: CORE_PEER_TLS_CERT_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
+        - name: CORE_PEER_TLS_ENABLED
+          value: "true"
+        - name: CORE_PEER_TLS_KEY_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
+        - name: CORE_PEER_TLS_ROOTCERT_FILE
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+        - name: CORE_VM_ENDPOINT
+          value: unix:///host/var/run/docker.sock
+        - name: GOPATH
+          value: /opt/gopath
+        image: hyperledger/fabric-tools:latest
+        imagePullPolicy: Never
+        name: cli
+        tty: true
+        volumeMounts:
+        - mountPath: /host/var/run/
+          name: run
+        - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/examples/chaincode/go
+          name: go
+        - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+          name: crypto
+        - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+          name: scripts
+        - mountPath: /opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+          name: channel-artifacts
+        workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+      restartPolicy: Always
+      volumes:
+      - name: run
+        hostPath:
+          path: /var/run/
+      - name: go
+        hostPath:
+          path: /var/fabric-net/chaincode
+      - name: crypto
+        hostPath:
+          path: /var/fabric-net/crypto-config
+      - name: scripts
+        hostPath:
+          path: /var/fabric-net/scripts
+      - name: channel-artifacts
+        hostPath:
+          path: /var/fabric-net/channel-artifacts
+      nodeSelector:
+        bc: "true"
+

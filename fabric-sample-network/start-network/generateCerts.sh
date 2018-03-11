@@ -105,6 +105,14 @@ function generateChannelArtifacts() {
   echo
 }
 
+function preparecli() {
+	rm -rf /var/fabric-net/chaincode/
+	rm -rf /var/fabric-net/scripts/
+
+	cp -r chaincode /var/fabric-net/
+	cp -r scripts /var/fabric-net/
+}
+
 generateCerts
 replacePrivateKey
 generateChannelArtifacts
