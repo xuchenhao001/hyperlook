@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: peer1-org1
+  namespace: fabric-net
+  labels:
+    k8s-app: peer1-org1
+spec:
+  ports:
+  - name: "8051"
+    port: 8051
+    targetPort: 7051
+  - name: "8053"
+    port: 8053
+    targetPort: 7053
+  selector:
+    k8s-app: peer1-org1
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: peer1-org1
+  namespace: fabric-net
+  labels:
+    k8s-app: peer1-org1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: peer1-org1
+  template:
+    metadata:
+      labels:
+        k8s-app: peer1-org1
+    spec:
+      containers:
+      - args:
+        - peer
+        - node
+        - start
+        env:
+        - name: CORE_LOGGING_LEVEL
+          value: DEBUG
+        - name: CORE_PEER_ADDRESS
+          value: peer1.org1.example.com:7051
+        - name: CORE_PEER_GOSSIP_BOOTSTRAP
+          value: peer0.org1.example.com:7051
+        - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
+          value: peer1.org1.example.com:7051
+        - name: CORE_PEER_GOSSIP_ORGLEADER
+          value: "false"
+        - name: CORE_PEER_GOSSIP_USELEADERELECTION
+          value: "true"
+        - name: CORE_PEER_ID
+          value: peer1.org1.example.com
+        - name: CORE_PEER_LOCALMSPID
+          value: Org1MSP
+        - name: CORE_PEER_PROFILE_ENABLED
+          value: "true"
+        - name: CORE_PEER_TLS_CERT_FILE
+          value: /etc/hyperledger/fabric/tls/server.crt
+        - name: CORE_PEER_TLS_ENABLED
+          value: "true"
+        - name: CORE_PEER_TLS_KEY_FILE
+          value: /etc/hyperledger/fabric/tls/server.key
+        - name: CORE_PEER_TLS_ROOTCERT_FILE
+          value: /etc/hyperledger/fabric/tls/ca.crt
+        - name: CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE
+          value: net_byfn
+        - name: CORE_VM_ENDPOINT
+          value: unix:///host/var/run/docker.sock
+        image: hyperledger/fabric-peer:latest
+        imagePullPolicy: Never
+        name: peer1-org1
+        ports:
+        - containerPort: 7051
+        - containerPort: 7053
+        volumeMounts:
+        - mountPath: /host/var/run/
+          name: run
+        - mountPath: /etc/hyperledger/fabric/msp
+          name: msp
+        - mountPath: /etc/hyperledger/fabric/tls
+          name: tls
+        - mountPath: /var/hyperledger/production
+          name: production
+        workingDir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+      restartPolicy: Always
+      volumes:
+      - name: run
+        hostPath:
+          path: /var/run/
+      - name: msp
+        hostPath:
+          path: /var/fabric-net/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/msp
+      - name: tls
+        hostPath:
+          path: /var/fabric-net/crypto-config/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls
+      - name: production
+        hostPath:
+          path: /var/fabric-net/production/peer1-org1
+      nodeSelector:
+        bc: "true"
+

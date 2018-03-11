@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orderer
+  namespace: fabric-net
+  labels:
+    k8s-app: orderer
+spec:
+  ports:
+  - name: "7050"
+    port: 7050
+    targetPort: 7050
+  selector:
+    k8s-app: orderer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: orderer
+  namespace: fabric-net
+  labels:
+    k8s-app: orderer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: orderer
+  template:
+    metadata:
+      labels:
+        k8s-app: orderer
+    spec:
+      containers:
+      - args:
+        - orderer
+        env:
+        - name: ORDERER_GENERAL_GENESISFILE
+          value: /var/hyperledger/orderer/orderer.genesis.block
+        - name: ORDERER_GENERAL_GENESISMETHOD
+          value: file
+        - name: ORDERER_GENERAL_LISTENADDRESS
+          value: 0.0.0.0
+        - name: ORDERER_GENERAL_LOCALMSPDIR
+          value: /var/hyperledger/orderer/msp
+        - name: ORDERER_GENERAL_LOCALMSPID
+          value: OrdererMSP
+        - name: ORDERER_GENERAL_LOGLEVEL
+          value: debug
+        - name: ORDERER_GENERAL_TLS_CERTIFICATE
+          value: /var/hyperledger/orderer/tls/server.crt
+        - name: ORDERER_GENERAL_TLS_ENABLED
+          value: "true"
+        - name: ORDERER_GENERAL_TLS_PRIVATEKEY
+          value: /var/hyperledger/orderer/tls/server.key
+        - name: ORDERER_GENERAL_TLS_ROOTCAS
+          value: '[/var/hyperledger/orderer/tls/ca.crt]'
+        image: hyperledger/fabric-orderer:latest
+        imagePullPolicy: Never
+        name: orderer
+        ports:
+        - containerPort: 7050
+        volumeMounts:
+        - mountPath: /var/hyperledger/orderer/orderer.genesis.block
+          name: genesisblock
+        - mountPath: /var/hyperledger/orderer/msp
+          name: msp
+        - mountPath: /var/hyperledger/orderer/tls
+          name: tls
+        - mountPath: /var/hyperledger/production/orderer
+          name: orderer
+        workingDir: /opt/gopath/src/github.com/hyperledger/fabric
+      restartPolicy: Always
+      volumes:
+      - name: genesisblock
+        hostPath:
+          path: /var/fabric-net/channel-artifacts/genesis.block
+      - name: msp
+        hostPath:
+          path: /var/fabric-net/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/msp
+      - name: tls
+        hostPath:
+          path: /var/fabric-net/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/
+      - name: orderer
+        hostPath:
+          path: /var/fabric-net/production/orderer
+      nodeSelector:
+        bc: "true"
+
