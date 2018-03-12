@@ -8,6 +8,7 @@ $ ./download-binaries.sh
 $ export PATH=<path to current location>/bin:$PATH
 $ cd start-network
 $ ./generateCerts.sh
+$ kubectl create ns fabric-net
 $ kubectl create -f manifest/
 ```
 
