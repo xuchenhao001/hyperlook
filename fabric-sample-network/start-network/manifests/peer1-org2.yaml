@@ -7,11 +7,11 @@ metadata:
     k8s-app: peer1-org2
 spec:
   ports:
-  - name: "10051"
-    port: 10051
+  - name: "7051"
+    port: 7051
     targetPort: 7051
-  - name: "10053"
-    port: 10053
+  - name: "7053"
+    port: 7053
     targetPort: 7053
   selector:
     k8s-app: peer1-org2
@@ -42,11 +42,11 @@ spec:
         - name: CORE_LOGGING_LEVEL
           value: DEBUG
         - name: CORE_PEER_ADDRESS
-          value: peer1.org2.example.com:7051
+          value: peer1-org2:7051
         - name: CORE_PEER_GOSSIP_BOOTSTRAP
-          value: peer1.org2.example.com:7051
+          value: peer1-org2:7051
         - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
-          value: peer1.org2.example.com:7051
+          value: peer1-org2:7051
         - name: CORE_PEER_GOSSIP_ORGLEADER
           value: "false"
         - name: CORE_PEER_GOSSIP_USELEADERELECTION

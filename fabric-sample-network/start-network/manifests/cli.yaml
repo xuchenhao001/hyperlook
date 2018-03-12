@@ -19,12 +19,12 @@ spec:
       - args:
         - /bin/bash
         - -c
-        - sleep 36000
+        - sleep 3600000
         env:
         - name: CORE_LOGGING_LEVEL
           value: DEBUG
         - name: CORE_PEER_ADDRESS
-          value: peer0.org1.example.com:7051
+          value: peer0-org1:7051
         - name: CORE_PEER_ID
           value: cli
         - name: CORE_PEER_LOCALMSPID

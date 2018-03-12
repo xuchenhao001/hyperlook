@@ -42,9 +42,9 @@ spec:
         - name: CORE_LOGGING_LEVEL
           value: DEBUG
         - name: CORE_PEER_ADDRESS
-          value: peer0.org1.example.com:7051
+          value: peer0-org1:7051
         - name: CORE_PEER_GOSSIP_EXTERNALENDPOINT
-          value: peer0.org1.example.com:7051
+          value: peer0-org1:7051
         - name: CORE_PEER_GOSSIP_ORGLEADER
           value: "false"
         - name: CORE_PEER_GOSSIP_USELEADERELECTION
