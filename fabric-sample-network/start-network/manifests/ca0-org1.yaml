@@ -1,66 +1,66 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ca0
+  name: ca0-org1
   namespace: fabric-net
   labels:
-    k8s-app: ca0
+    k8s-app: ca0-org1
 spec:
   ports:
   - name: "7054"
     port: 7054
     targetPort: 7054
   selector:
-    k8s-app: ca0
+    k8s-app: ca0-org1
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ca0
+  name: ca0-org1
   namespace: fabric-net
   labels:
-    k8s-app: ca0
+    k8s-app: ca0-org1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: ca0
+      k8s-app: ca0-org1
   template:
     metadata:
       labels:
-        k8s-app: ca0
+        k8s-app: ca0-org1
     spec:
       containers:
       - args:
         - sh
         - -c
-        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem
-          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY -b
+        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net-cert.pem
+          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/969831b036cc3ba502d9090118ac6546139cba3afefa3e275ec7e461ff1aecc4_sk -b
           admin:adminpw -d
         env:
         - name: FABRIC_CA_HOME
           value: /etc/hyperledger/fabric-ca-server
         - name: FABRIC_CA_SERVER_CA_NAME
-          value: ca-org1
+          value: ca0-org1.fabric-net
         - name: FABRIC_CA_SERVER_TLS_CERTFILE
-          value: /etc/hyperledger/fabric-ca-server-config/ca.org1.example.com-cert.pem
+          value: /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net-cert.pem
         - name: FABRIC_CA_SERVER_TLS_ENABLED
           value: "true"
         - name: FABRIC_CA_SERVER_TLS_KEYFILE
-          value: /etc/hyperledger/fabric-ca-server-config/CA1_PRIVATE_KEY
+          value: /etc/hyperledger/fabric-ca-server-config/969831b036cc3ba502d9090118ac6546139cba3afefa3e275ec7e461ff1aecc4_sk
         image: hyperledger/fabric-ca:latest
         imagePullPolicy: Never
-        name: ca-org1
+        name: ca0-org1
         ports:
         - containerPort: 7054
         volumeMounts:
         - mountPath: /etc/hyperledger/fabric-ca-server-config
-          name: ca0
+          name: ca
       restartPolicy: Always
       volumes:
-      - name: ca0
+      - name: ca
         hostPath:
-          path: /var/fabric-net/crypto-config/peerOrganizations/org1.example.com/ca/
+          path: /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net/ca/
       nodeSelector:
         bc: "true"
 

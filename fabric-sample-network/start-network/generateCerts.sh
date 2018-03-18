@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CHANNEL_NAME=testchannel
+#set -x
+CHANNEL_NAME=mychannel
 export FABRIC_CFG_PATH=${PWD}
 
 # Generates Org certs using cryptogen tool
@@ -30,20 +31,20 @@ function generateCerts (){
 # configuration
 function replacePrivateKey () {
   # Copy the template to the file that will be modified to add the private key
-  cp manifests/ca-template/ca0-template.yaml manifests/ca0.yaml
-  cp manifests/ca-template/ca1-template.yaml manifests/ca1.yaml
+  cp manifests/ca-template/ca0-org1-template.yaml manifests/ca0-org1.yaml
+  cp manifests/ca-template/ca0-org2-template.yaml manifests/ca0-org2.yaml
 
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the two CAs.
   CURRENT_DIR=$PWD
-  cd /var/fabric-net/crypto-config/peerOrganizations/org1.example.com/ca/
+  cd /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
-  sed -i $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca0.yaml
-  cd /var/fabric-net/crypto-config/peerOrganizations/org2.example.com/ca/
+  sed -i $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca0-org1.yaml
+  cd /var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
-  sed -i $OPTS "s/CA2_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca1.yaml
+  sed -i $OPTS "s/CA2_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca0-org2.yaml
 }
 
 # Generate orderer genesis block, channel configuration transaction and
@@ -108,11 +109,15 @@ function generateChannelArtifacts() {
 function preparecli() {
 	rm -rf /var/fabric-net/chaincode/
 	rm -rf /var/fabric-net/scripts/
+	rm -rf /var/fabric-net/production
 
 	cp -r chaincode /var/fabric-net/
 	cp -r scripts /var/fabric-net/
 }
 
+
 generateCerts
 replacePrivateKey
 generateChannelArtifacts
+preparecli
+

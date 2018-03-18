@@ -11,7 +11,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: example.com
+    Domain: fabric-net
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -25,7 +25,15 @@ PeerOrgs:
   # Org1
   # ---------------------------------------------------------------------------
   - Name: Org1
-    Domain: org1.example.com
+    Domain: org1.fabric-net
+    CA:
+      Hostname: ca0-org1
+      CommonName: ca0-org1.fabric-net
+    Specs:
+      - Hostname: peer0-org1
+        CommonName: peer0-org1.fabric-net
+      - Hostname: peer1-org1
+        CommonName: peer1-org1.fabric-net
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
@@ -59,8 +67,8 @@ PeerOrgs:
     # sections and the aggregate nodes will be created for you.  Take care with
     # name collisions
     # ---------------------------------------------------------------------------
-    Template:
-      Count: 2
+    # Template:
+      # Count: 2
       # Start: 5
       # Hostname: {{.Prefix}}{{.Index}} # default
     # ---------------------------------------------------------------------------
@@ -74,8 +82,16 @@ PeerOrgs:
   # Org2: See "Org1" for full specification
   # ---------------------------------------------------------------------------
   - Name: Org2
-    Domain: org2.example.com
-    Template:
-      Count: 2
+    Domain: org2.fabric-net
+    CA:
+      Hostname: ca0-org2
+      CommonName: ca0-org2.fabric-net
+    Specs:
+      - Hostname: peer0-org2
+        CommonName: peer0-org2.fabric-net
+      - Hostname: peer1-org2
+        CommonName: peer1-org2.fabric-net
+    # Template:
+      # Count: 2
     Users:
       Count: 1
