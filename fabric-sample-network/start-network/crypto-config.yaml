@@ -11,7 +11,7 @@ OrdererOrgs:
   # Orderer
   # ---------------------------------------------------------------------------
   - Name: Orderer
-    Domain: fabric-net
+    Domain: fabric-net.svc.cluster.local
     # ---------------------------------------------------------------------------
     # "Specs" - See PeerOrgs below for complete description
     # ---------------------------------------------------------------------------
@@ -25,15 +25,15 @@ PeerOrgs:
   # Org1
   # ---------------------------------------------------------------------------
   - Name: Org1
-    Domain: org1.fabric-net
+    Domain: org1.fabric-net.svc.cluster.local
     CA:
       Hostname: ca0-org1
-      CommonName: ca0-org1.fabric-net
+      CommonName: ca0-org1.fabric-net.svc.cluster.local
     Specs:
       - Hostname: peer0-org1
-        CommonName: peer0-org1.fabric-net
+        CommonName: peer0-org1.fabric-net.svc.cluster.local
       - Hostname: peer1-org1
-        CommonName: peer1-org1.fabric-net
+        CommonName: peer1-org1.fabric-net.svc.cluster.local
     # ---------------------------------------------------------------------------
     # "Specs"
     # ---------------------------------------------------------------------------
@@ -82,15 +82,15 @@ PeerOrgs:
   # Org2: See "Org1" for full specification
   # ---------------------------------------------------------------------------
   - Name: Org2
-    Domain: org2.fabric-net
+    Domain: org2.fabric-net.svc.cluster.local
     CA:
       Hostname: ca0-org2
-      CommonName: ca0-org2.fabric-net
+      CommonName: ca0-org2.fabric-net.svc.cluster.local
     Specs:
       - Hostname: peer0-org2
-        CommonName: peer0-org2.fabric-net
+        CommonName: peer0-org2.fabric-net.svc.cluster.local
       - Hostname: peer1-org2
-        CommonName: peer1-org2.fabric-net
+        CommonName: peer1-org2.fabric-net.svc.cluster.local
     # Template:
       # Count: 2
     Users:

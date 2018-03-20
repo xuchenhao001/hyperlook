@@ -37,11 +37,11 @@ function replacePrivateKey () {
   # The next steps will replace the template's contents with the
   # actual values of the private key file names for the two CAs.
   CURRENT_DIR=$PWD
-  cd /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net/ca/
+  cd /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net.svc.cluster.local/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
   sed -i $OPTS "s/CA1_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca0-org1.yaml
-  cd /var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net/ca/
+  cd /var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net.svc.cluster.local/ca/
   PRIV_KEY=$(ls *_sk)
   cd "$CURRENT_DIR"
   sed -i $OPTS "s/CA2_PRIVATE_KEY/${PRIV_KEY}/g" manifests/ca0-org2.yaml

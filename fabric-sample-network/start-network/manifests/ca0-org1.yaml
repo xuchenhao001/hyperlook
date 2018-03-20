@@ -34,20 +34,22 @@ spec:
       - args:
         - sh
         - -c
-        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net-cert.pem
-          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/969831b036cc3ba502d9090118ac6546139cba3afefa3e275ec7e461ff1aecc4_sk -b
+        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net.svc.cluster.local-cert.pem
+          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/7590db3b55f5a1f49adb7586cedb1cab1a0aba22d20c840ff051c71879ae5f3d_sk -b
           admin:adminpw -d
         env:
         - name: FABRIC_CA_HOME
           value: /etc/hyperledger/fabric-ca-server
         - name: FABRIC_CA_SERVER_CA_NAME
-          value: ca0-org1.fabric-net
+          value: ca0-org1.fabric-net.svc.cluster.local
         - name: FABRIC_CA_SERVER_TLS_CERTFILE
-          value: /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net-cert.pem
+          value: /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net.svc.cluster.local-cert.pem
         - name: FABRIC_CA_SERVER_TLS_ENABLED
           value: "true"
         - name: FABRIC_CA_SERVER_TLS_KEYFILE
-          value: /etc/hyperledger/fabric-ca-server-config/969831b036cc3ba502d9090118ac6546139cba3afefa3e275ec7e461ff1aecc4_sk
+          value: /etc/hyperledger/fabric-ca-server-config/7590db3b55f5a1f49adb7586cedb1cab1a0aba22d20c840ff051c71879ae5f3d_sk
+        - name: GODEBUG
+          value: netdns=go
         image: hyperledger/fabric-ca:latest
         imagePullPolicy: Never
         name: ca0-org1
@@ -60,7 +62,7 @@ spec:
       volumes:
       - name: ca
         hostPath:
-          path: /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net/ca/
+          path: /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net.svc.cluster.local/ca/
       nodeSelector:
         bc: "true"
 

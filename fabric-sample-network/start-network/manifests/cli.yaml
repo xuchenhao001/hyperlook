@@ -24,23 +24,25 @@ spec:
         - name: CORE_LOGGING_LEVEL
           value: DEBUG
         - name: CORE_PEER_ADDRESS
-          value: peer0-org1.fabric-net:7051
+          value: peer0-org1.fabric-net.svc.cluster.local:7051
         - name: CORE_PEER_ID
           value: cli
         - name: CORE_PEER_LOCALMSPID
           value: Org1MSP
         - name: CORE_PEER_MSPCONFIGPATH
-          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net/users/Admin@org1.fabric-net/msp
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net.svc.cluster.local/users/Admin@org1.fabric-net.svc.cluster.local/msp
         - name: CORE_PEER_TLS_CERT_FILE
-          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net/peers/peer0-org1.fabric-net/tls/server.crt
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net.svc.cluster.local/peers/peer0-org1.fabric-net.svc.cluster.local/tls/server.crt
         - name: CORE_PEER_TLS_ENABLED
           value: "true"
         - name: CORE_PEER_TLS_KEY_FILE
-          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net/peers/peer0-org1.fabric-net/tls/server.key
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net.svc.cluster.local/peers/peer0-org1.fabric-net.svc.cluster.local/tls/server.key
         - name: CORE_PEER_TLS_ROOTCERT_FILE
-          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net/peers/peer0-org1.fabric-net/tls/ca.crt
+          value: /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.fabric-net.svc.cluster.local/peers/peer0-org1.fabric-net.svc.cluster.local/tls/ca.crt
         - name: CORE_VM_ENDPOINT
           value: unix:///host/var/run/docker.sock
+        - name: GODEBUG
+          value: netdns=go
         - name: GOPATH
           value: /opt/gopath
         image: hyperledger/fabric-tools:latest
