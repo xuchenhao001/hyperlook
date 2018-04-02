@@ -107,26 +107,27 @@ func postQuery(url string, fabricNamespace string, podName string) (*string, err
 func removeNonPrintable(originalString string) (*string, error) {
 	reg, err := regexp.Compile("[\x00\x08\x0B\x0C\x0E-\x1F]")
 	if err != nil {
-		log.Printf("Error cannot compile regex: %s", err.Error())
+		log.Printf("Error cannot compile regex: %s", err)
 		return nil, err
 	}
 	printableString := reg.ReplaceAllString(originalString, "")
 	return &printableString, nil
 }
 
-func extractLogs(searchData *string) {
+func extractLogs(searchData *string) (*[]HitContent, error) {
 	// Delete all non-printable characters
 	pureString, err := removeNonPrintable(*searchData)
 	if err != nil {
 		log.Printf("Error remove non printable characters: %s", err)
-		return
+		return nil, err
 	}
+
+	// Here needs reply struct judgements
 
 	// Extract string to a new json
 	var searchBody SearchBody
 	json.Unmarshal([]byte(*pureString), &searchBody)
-	log.Println(searchBody.Hits.Hits[0].Source.Log)
-
+	return &searchBody.Hits.Hits, nil
 }
 
 func main() {
@@ -136,6 +137,8 @@ func main() {
 	res, err := postQuery(url, fabricNamespace, podName)
 	if err != nil {
 		log.Printf("Error cannot query logs from EFK server: %s", err.Error())
+		return
 	}
-	extractLogs(res)
+	logsArray, err := extractLogs(res)
+	analysisLogs(logsArray)
 }
