@@ -94,7 +94,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("join channel from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info join channel from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerJoinChannel.Set(duration)
 				analysed[0] = true
 			} else
@@ -104,7 +104,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("install chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info install chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerInstallChaincode.Set(duration)
 				analysed[1] = true
 			} else
@@ -114,7 +114,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("instantiate chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info instantiate chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerInstantiateChaincode.Set(duration)
 				analysed[2] = true
 			} else
@@ -124,7 +124,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("upgrade chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info upgrade chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerUpgradeChaincode.Set(duration)
 				analysed[3] = true
 			} else
@@ -134,7 +134,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("invoke from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info invoke from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerInvokeChaincode.Set(duration)
 				analysed[4] = true
 			} else
@@ -144,7 +144,7 @@ func analysisLogs(logsArray *[]HitContent) {
 					continue
 				}
 				duration := float64(endTime - hit.Sort[0])/1000
-				log.Printf("query from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				log.Printf("Info query from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
 				peerQueryChaincode.Set(duration)
 				analysed[5] = true
 			}

@@ -144,13 +144,17 @@ func main() {
 
 	go func() {
 		for {
-			res, err := postQuery("http://" + *elaSearchAddr + ":" + *elaSearchPort, *fabricNamespace, *podName)
+			elaSearchURL := "http://" + *elaSearchAddr + ":" + *elaSearchPort
+			log.Printf("Info get logs from elasticsearch server: %s", elaSearchURL)
+			res, err := postQuery(elaSearchURL, *fabricNamespace, *podName)
 			if err != nil {
 				log.Printf("Error cannot query logs from ElasticSearch: %s", err.Error())
 				return
 			}
 			logsArray, err := extractLogs(res)
+			log.Printf("Info start to analysis logs")
 			analysisLogs(logsArray)
+			log.Printf("Info sleep for %d seconds", *interval)
 			time.Sleep(time.Duration(*interval) * time.Second)
 		}
 	}()
