@@ -3,10 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type SearchBody struct {
@@ -131,14 +135,27 @@ func extractLogs(searchData *string) (*[]HitContent, error) {
 }
 
 func main() {
-	url := "http://localhost:3000"
-	fabricNamespace := "fabric-net"
-	podName := "peer0-org1"
-	res, err := postQuery(url, fabricNamespace, podName)
-	if err != nil {
-		log.Printf("Error cannot query logs from EFK server: %s", err.Error())
-		return
-	}
-	logsArray, err := extractLogs(res)
-	analysisLogs(logsArray)
+	addr := flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+	interval := flag.Uint64("interval", 60, "The interval (seconds) to grab data from fabric net.")
+	elaSearchAddr := flag.String("elaSearchAddr", "127.0.0.1", "The address of elasticsearch.")
+	elaSearchPort := flag.String("elaSearchPort", "3000", "The port of elasticsearch.")
+	fabricNamespace := flag.String("fabricNamespace", "fabric-net", "The namespaces of fabric net.")
+	podName := flag.String("podName", "peer0-org1", "The full pod name to grab data")
+
+	go func() {
+		for {
+			res, err := postQuery("http://" + *elaSearchAddr + ":" + *elaSearchPort, *fabricNamespace, *podName)
+			if err != nil {
+				log.Printf("Error cannot query logs from ElasticSearch: %s", err.Error())
+				return
+			}
+			logsArray, err := extractLogs(res)
+			analysisLogs(logsArray)
+			time.Sleep(time.Duration(*interval) * time.Second)
+		}
+	}()
+
+	// Expose the registered metrics via HTTP.
+	http.Handle("/metrics", promhttp.Handler())
+	log.Fatal(http.ListenAndServe(*addr, nil))
 }

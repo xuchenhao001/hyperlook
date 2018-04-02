@@ -60,9 +60,15 @@ func analysisLogs(logsArray *[]HitContent) {
 	}
 
 
+	// weight[6] respectively represent: cscc, escc, lscc, qscc, vscc, and generateDockerfile
 	var weight[6] int
 	var endTime uint64
+	// analysed[6] respectively represent: join channel, install chaincode, instantiate chaincode,
+	// upgrade chaincode, invoke, and query. So that the Hyperlook always exports the newest data.
+	var analysed[6] bool
+
 	for _, hit := range *logsArray {
+		// because logs are in a time reverse order, so we analysis from end to start.
 		matchEnd := endReg.FindString(hit.Source.Log)
 		if matchEnd != "" {
 			endTime = hit.Sort[0]
@@ -72,6 +78,10 @@ func analysisLogs(logsArray *[]HitContent) {
 		if matchStart != "" {
 			// if there isn't a end time, go ahead
 			if endTime == 0 {
+				// clean weight array
+				for index := range weight {
+					weight[index] = 0
+				}
 				continue
 			}
 			var weightSum float64 = 0
@@ -80,27 +90,63 @@ func analysisLogs(logsArray *[]HitContent) {
 			}
 			// join channel
 			if math.Abs(weightSum - 31) <= 0.1 {
-				log.Printf("join channel from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[0] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("join channel from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerJoinChannel.Set(duration)
+				analysed[0] = true
 			} else
 			// install chaincode
 			if math.Abs(weightSum - 16) <= 0.1 {
-				log.Printf("install chaincode from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[1] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("install chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerInstallChaincode.Set(duration)
+				analysed[1] = true
 			} else
 			// instantiate chaincode
 			if math.Abs(weightSum - 42) <= 0.1 {
-				log.Printf("instantiate chaincode from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[2] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("instantiate chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerInstantiateChaincode.Set(duration)
+				analysed[2] = true
 			} else
 			// upgrade chaincode
 			if math.Abs(weightSum - 54) <= 0.1 {
-				log.Printf("upgrade chaincode from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[3] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("upgrade chaincode from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerUpgradeChaincode.Set(duration)
+				analysed[3] = true
 			} else
 			// invoke
 			if math.Abs(weightSum - 22) <= 0.1 {
-				log.Printf("invoke from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[4] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("invoke from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerInvokeChaincode.Set(duration)
+				analysed[4] = true
 			} else
 			// query
 			if math.Abs(weightSum - 6) <= 0.1 {
-				log.Printf("query from %d to %d: %d", hit.Sort[0], endTime, endTime - hit.Sort[0])
+				if analysed[5] == true {
+					continue
+				}
+				duration := float64(endTime - hit.Sort[0])/1000
+				log.Printf("query from %d to %d, duration: %fs", hit.Sort[0], endTime, duration)
+				peerQueryChaincode.Set(duration)
+				analysed[5] = true
 			}
 
 			// clean weight array
