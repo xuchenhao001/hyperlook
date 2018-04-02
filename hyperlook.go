@@ -39,9 +39,20 @@ type Source struct {
 	Log			string			`json:"log"`
 	Stream		string			`json:"stream"`
 	Docker		interface{}		`json:"docker"`
-	Kubernetes	interface{}		`json:"kubernetes"`
+	Kubernetes	Kubernetes		`json:"kubernetes"`
 	Timestamp	string			`json:"@timestamp"`
 	Tag			string			`json:"tag"`
+}
+
+type Kubernetes struct {
+	ContainerName	string		`json:"container_name"`
+	NamespaceName	string		`json:"namespace_name"`
+	PodName			string		`json:"pod_name"`
+	PodId			string		`json:"pod_id"`
+	Labels			interface{}	`json:"labels"`
+	Host			string		`json:"host"`
+	MasterURL		string		`json:"master_url"`
+	NamespaceId		string		`json:"namespace_id"`
 }
 
 func postQuery(url string, fabricNamespace string, podName string) (*string, error) {
@@ -140,13 +151,13 @@ func main() {
 	elaSearchAddr := flag.String("elaSearchAddr", "127.0.0.1", "The address of elasticsearch.")
 	elaSearchPort := flag.String("elaSearchPort", "3000", "The port of elasticsearch.")
 	fabricNamespace := flag.String("fabricNamespace", "fabric-net", "The namespaces of fabric net.")
-	podName := flag.String("podName", "peer0-org1", "The full pod name to grab data")
+	containerName := flag.String("containerName", "peer0-org1", "The container name to grab data")
 
 	go func() {
 		for {
 			elaSearchURL := "http://" + *elaSearchAddr + ":" + *elaSearchPort
 			log.Printf("Info get logs from elasticsearch server: %s", elaSearchURL)
-			res, err := postQuery(elaSearchURL, *fabricNamespace, *podName)
+			res, err := postQuery(elaSearchURL, *fabricNamespace, *containerName)
 			if err != nil {
 				log.Printf("Error cannot query logs from ElasticSearch: %s", err.Error())
 				return
