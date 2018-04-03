@@ -144,13 +144,15 @@ func extractLogs(searchData *string) (*[]HitContent, error) {
 }
 
 func main() {
-	addr := flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
-	containerName := flag.String("containerName", "peer", "The container name to grab data")
-	elaSearchAddr := flag.String("elaSearchAddr", "127.0.0.1", "The address of elasticsearch.")
-	elaSearchPort := flag.String("elaSearchPort", "3000", "The port of elasticsearch.")
-	elaSearchSize := flag.String("elaSearchSize", "200", "The size search from elasticsearch")
-	fabricNamespace := flag.String("fabricNamespace", "fabric-net", "The namespaces of fabric net.")
+	listenPort := flag.String("listen-port", ":8080", "The port to listen on for HTTP requests.")
+	containerName := flag.String("container-name", "peer", "The container name to grab data")
+	elaSearchAddr := flag.String("elastic-search-addr", "127.0.0.1", "The address of elasticsearch.")
+	elaSearchPort := flag.String("elastic-search-port", "3000", "The port of elasticsearch.")
+	elaSearchSize := flag.String("elastic-search-size", "200", "The size search from elasticsearch")
+	fabricNamespace := flag.String("fabric-namespace", "fabric-net", "The namespaces of fabric net.")
 	interval := flag.Uint64("interval", 60, "The interval (seconds) to grab data from fabric net.")
+
+	flag.Parse()
 
 	go func() {
 		for {
@@ -172,5 +174,5 @@ func main() {
 
 	// Expose the registered metrics via HTTP.
 	http.Handle("/metrics", promhttp.Handler())
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	log.Fatal(http.ListenAndServe(*listenPort, nil))
 }
