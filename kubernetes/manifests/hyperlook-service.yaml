@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hyperlook
+  namespace: monitoring
+  labels:
+    app: hyperlook
+    k8s-app: hyperlook
+spec:
+  type: NodePort
+  ports:
+  - name: hyperlook-metrics
+    port: 2053
+    protocol: TCP
+    nodePort: 32053
+  selector:
+    app: hyperlook
