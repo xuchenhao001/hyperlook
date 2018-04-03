@@ -79,7 +79,7 @@ func postQuery(url string, fabricNamespace string, podName string) (*string, err
 	matchContainerName := make(map[string]interface{})
 	matchContainerName["kubernetes.container_name"] = containerName
 	matchContainerNameBody := make(map[string]interface{})
-	matchContainerNameBody["match_phrase"] = matchContainerName
+	matchContainerNameBody["match_phrase_prefix"] = matchContainerName
 	mustQuery = append(mustQuery, matchContainerNameBody)
 	// encapsulate to full json object
 	mustBody := make(map[string]interface{})
@@ -137,8 +137,6 @@ func extractLogs(searchData *string) (*[]HitContent, error) {
 		return nil, err
 	}
 
-	// Here needs reply struct judgements
-
 	// Extract string to a new json
 	var searchBody SearchBody
 	json.Unmarshal([]byte(*pureString), &searchBody)
@@ -147,17 +145,19 @@ func extractLogs(searchData *string) (*[]HitContent, error) {
 
 func main() {
 	addr := flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
-	interval := flag.Uint64("interval", 60, "The interval (seconds) to grab data from fabric net.")
+	containerName := flag.String("containerName", "peer", "The container name to grab data")
 	elaSearchAddr := flag.String("elaSearchAddr", "127.0.0.1", "The address of elasticsearch.")
 	elaSearchPort := flag.String("elaSearchPort", "3000", "The port of elasticsearch.")
+	elaSearchSize := flag.String("elaSearchSize", "200", "The size search from elasticsearch")
 	fabricNamespace := flag.String("fabricNamespace", "fabric-net", "The namespaces of fabric net.")
-	containerName := flag.String("containerName", "peer0-org1", "The container name to grab data")
+	interval := flag.Uint64("interval", 60, "The interval (seconds) to grab data from fabric net.")
 
 	go func() {
 		for {
 			elaSearchURL := "http://" + *elaSearchAddr + ":" + *elaSearchPort
 			log.Printf("Info get logs from elasticsearch server: %s", elaSearchURL)
-			res, err := postQuery(elaSearchURL, *fabricNamespace, *containerName)
+			elaSearchParam := "/_search?size=" + *elaSearchSize + "&sort=@timestamp:desc"
+			res, err := postQuery(elaSearchURL + elaSearchParam, *fabricNamespace, *containerName)
 			if err != nil {
 				log.Printf("Error cannot query logs from ElasticSearch: %s", err.Error())
 				return
