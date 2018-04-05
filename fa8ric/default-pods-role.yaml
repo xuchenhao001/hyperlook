@@ -1,0 +1,24 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: default-pods-role
+  namespace: fabric-net
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: default-pods-rolebinding
+  namespace: fabric-net
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: fabric-net
+roleRef:
+  kind: Role
+  name: default-pods-role
+  apiGroup: rbac.authorization.k8s.io
