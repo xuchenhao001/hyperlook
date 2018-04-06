@@ -39,6 +39,10 @@ spec:
         - node
         - start
         env:
+        - name: CORE_CHAINCODE_LOGGING_LEVEL
+          value: DEBUG
+        - name: CORE_CHAINCODE_LOGGING_SHIM
+          value: DEBUG
         - name: CORE_LOGGING_LEVEL
           value: DEBUG
         - name: CORE_PEER_ADDRESS
