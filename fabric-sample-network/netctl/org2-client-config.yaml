@@ -1,0 +1,198 @@
+name: "fabric-net"
+
+# Describe what the target network is/does.
+description: "The sample network host by Kubernetes"
+
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+version: 2
+
+# The client section used by GO SDK.
+client:
+  # Which organization does this application instance belong to? The value must be the name of an org
+  organization: Org2
+  logging:
+    level: debug
+
+  # Global configuration for peer, event service and orderer timeouts
+  peer:
+    timeout:
+      connection: 3s
+      queryResponse: 45s
+      executeTxResponse: 30s
+  eventService:
+    timeout:
+      connection: 3s
+      registrationResponse: 3s
+  orderer:
+    timeout:
+      connection: 3s
+      response: 5s
+
+  # Root of the MSP directories with keys and certs. The Membership Service Providers is component that aims to offer an abstraction of a membership operation architecture.
+  cryptoconfig:
+    path: "/var/fabric-net/crypto-config"
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore" are implementation specific
+  credentialStore:
+    path: "/tmp/hyperlook/kvs"
+
+     # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      path: "/tmp/hyperlook/msp"
+
+  # BCCSP config for the client. Used by GO SDK. It's the Blockchain Cryptographic Service Provider.
+  # It offers the implementation of cryptographic standards and algorithms.
+  BCCSP:
+    security:
+     enabled: true
+     default:
+      provider: "SW"
+     hashAlgorithm: "SHA2"
+     softVerify: true
+     ephemeral: false
+     level: 256
+
+  tlsCerts:
+    systemCertPool: false
+
+# [Optional]. But most apps would have this section so that channel objects can be constructed based on the content below.
+# If one of your application is creating channels, you might not use this
+channels:
+  mychannel:
+    orderers:
+      - orderer.fabric-net
+
+    # Network entity which maintains a ledger and runs chaincode containers in order to perform operations to the ledger. Peers are owned and maintained by members.
+    peers:
+      peer0-org1.fabric-net.svc.cluster.local:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
+
+      peer1-org1.fabric-net:
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0-org2.fabric-net:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1-org2.fabric-net:
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+# List of participating organizations in this network
+organizations:
+  Org1:
+    mspid: Org1MSP
+    cryptoPath: "peerOrganizations/org1.fabric-net.svc.cluster.local/users/{userName}@org1.fabric-net.svc.cluster.local/msp"
+    peers:
+      - peer0-org1.fabric-net
+      - peer1-org1.fabric-net
+    certificateAuthorities:
+      - ca0-org1.fabric-net
+  Org2:
+    mspid: Org2MSP
+    cryptoPath: "peerOrganizations/org2.fabric-net.svc.cluster.local/users/{userName}@org2.fabric-net.svc.cluster.local/msp"
+    peers:
+      - peer0-org2.fabric-net
+      - peer1-org2.fabric-net
+    certificateAuthorities:
+      - ca0-org2.fabric-net
+
+# List of orderers to send transaction and channel create/update requests to.
+# The orderers consent on the order of transactions in a block to be committed to the ledger. For the time being only one orderer is needed.
+orderers:
+  orderer.fabric-net:
+    url: grpcs://orderer.fabric-net:7050
+    grpcOptions:
+      ssl-target-name-override: orderer.fabric-net.svc.cluster.local
+      grpc-max-send-message-length: 15
+    tlsCACerts:
+      path: "/var/fabric-net/crypto-config/ordererOrganizations/fabric-net.svc.cluster.local/tlsca/tlsca.fabric-net.svc.cluster.local-cert.pem"
+
+# List of peers to send various requests to, including endorsement, query and event listener registration.
+peers:
+  peer0-org1.fabric-net:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0-org1.fabric-net:7051
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpcs://peer0-org1.fabric-net:7053
+    # These parameters should be set in coordination with the keepalive policy on the server
+    grpcOptions:
+      ssl-target-name-override: peer0-org1.fabric-net.svc.cluster.local
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: "/var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net.svc.cluster.local/tlsca/tlsca0-org1.fabric-net.svc.cluster.local-cert.pem"
+
+  peer1-org1.fabric-net:
+    url: grpcs://peer1-org1.fabric-net:7051
+    eventUrl: grpcs://peer1-org1.fabric-net:7053
+    grpcOptions:
+      ssl-target-name-override: peer1-org1.fabric-net.svc.cluster.local
+      grpc.http2.keepalive_time: 15
+    tlsCACerts:
+      # Certificate location absolute path
+      path: "/var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net.svc.cluster.local/tlsca/tlsca0-org1.fabric-net.svc.cluster.local-cert.pem"
+
+  peer0-org2.fabric-net:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0-org2.fabric-net:7051
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpcs://peer0-org2.fabric-net:7053
+    # These parameters should be set in coordination with the keepalive policy on the server
+    grpcOptions:
+      ssl-target-name-override: peer0-org2.fabric-net.svc.cluster.local
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      path: "/var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net.svc.cluster.local/tlsca/tlsca0-org2.fabric-net.svc.cluster.local-cert.pem"
+
+  peer1-org2.fabric-net:
+    url: grpcs://peer1-org2.fabric-net:7051
+    eventUrl: grpcs://peer1-org2.fabric-net:7053
+    grpcOptions:
+      ssl-target-name-override: peer1-org2.fabric-net.svc.cluster.local
+      grpc.http2.keepalive_time: 15
+    tlsCACerts:
+      # Certificate location absolute path
+      path: "/var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net.svc.cluster.local/tlsca/tlsca0-org2.fabric-net.svc.cluster.local-cert.pem"
+
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows certificate management to be done via REST APIs.
+certificateAuthorities:
+  ca0-org1.fabric-net:
+    url: https://ca0-org1.fabric-net:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca0-org1.fabric-net.svc.cluster.local
+  ca0-org2.fabric-net:
+    url: https://ca0-org2.fabric-net:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    caName: ca0-org2.fabric-net.svc.cluster.local
