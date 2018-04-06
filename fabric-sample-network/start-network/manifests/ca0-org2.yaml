@@ -35,7 +35,7 @@ spec:
         - sh
         - -c
         - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org2.fabric-net.svc.cluster.local-cert.pem
-          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/1d74b19d7f328d64ed2fec8b8e247f07fa4fa1f2abf504da61cf3087273b8284_sk -b
+          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/ecf68f5a7ba153c0542c4dc1e6fa12d0010b484561abc424b0a6401a52458c68_sk -b
           admin:adminpw -d
         env:
         - name: FABRIC_CA_HOME
@@ -47,7 +47,7 @@ spec:
         - name: FABRIC_CA_SERVER_TLS_ENABLED
           value: "true"
         - name: FABRIC_CA_SERVER_TLS_KEYFILE
-          value: /etc/hyperledger/fabric-ca-server-config/1d74b19d7f328d64ed2fec8b8e247f07fa4fa1f2abf504da61cf3087273b8284_sk
+          value: /etc/hyperledger/fabric-ca-server-config/ecf68f5a7ba153c0542c4dc1e6fa12d0010b484561abc424b0a6401a52458c68_sk
         - name: GODEBUG
           value: netdns=go
         image: hyperledger/fabric-ca:latest
