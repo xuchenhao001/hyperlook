@@ -64,7 +64,7 @@ channels:
 
     # Network entity which maintains a ledger and runs chaincode containers in order to perform operations to the ledger. Peers are owned and maintained by members.
     peers:
-      peer0-org1.fabric-net.svc.cluster.local:
+      peer0-org1.fabric-net:
         # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
         # have the chaincode installed. The app can also use this property to decide which peers
         # to send the chaincode install request. Default: true
@@ -85,6 +85,7 @@ channels:
         eventSource: true
 
       peer1-org1.fabric-net:
+        endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true
@@ -94,6 +95,7 @@ channels:
         ledgerQuery: true
         eventSource: true
       peer1-org2.fabric-net:
+        endorsingPeer: true
         chaincodeQuery: true
         ledgerQuery: true
         eventSource: true

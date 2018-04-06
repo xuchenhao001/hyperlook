@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: netctl
+  namespace: fabric-net
+  labels:
+    k8s-app: netctl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: netctl
+  template:
+    metadata:
+      labels:
+        k8s-app: netctl
+    spec:
+      containers:
+      - args:
+        - /bin/sh
+        - -c
+        - sleep 3600000
+        image: netctl:latest
+        imagePullPolicy: Never
+        name: netctl
+        volumeMounts:
+        - mountPath: /go/src/chaincode/
+          name: chaincode
+        - mountPath: /var/fabric-net/crypto-config
+          name: crypto
+        - mountPath: /var/fabric-net/channel-artifacts
+          name: channel
+        workingDir: /go/src
+      restartPolicy: Always
+      volumes:
+      - name: chaincode
+        hostPath:
+          path: /var/fabric-net/chaincode
+      - name: crypto
+        hostPath:
+          path: /var/fabric-net/crypto-config
+      - name: channel
+        hostPath:
+          path: /var/fabric-net/channel-artifacts
+      nodeSelector:
+        bc: "true"
+
