@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn/chclient"
 	chmgmt "github.com/hyperledger/fabric-sdk-go/api/apitxn/chmgmtclient"
@@ -11,6 +10,7 @@ import (
 	packager "github.com/hyperledger/fabric-sdk-go/pkg/fabric-client/ccpackager/gopackager"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fabsdk"
 	"github.com/hyperledger/fabric-sdk-go/third_party/github.com/hyperledger/fabric/common/cauthdsl"
+	"github.com/hyperledger/fabric-sdk-go/pkg/fabric-txn/discovery/staticdiscovery"
 )
 
 // FabricSetup implementation
@@ -114,7 +114,7 @@ func (setup *FabricSetup) InstallCC() error {
 		return fmt.Errorf("failed to initialize sdk: %v", err)
 	}
 	// Org1 admin
-	setup.admin, err = setup.sdk.NewClient(fabsdk.WithUser(setup.OrgAdmin), fabsdk.WithOrg(setup.OrgName1)).ResourceMgmt()
+	setup.admin, err = setup.sdk.NewClient(fabsdk.WithUser(setup.OrgAdmin)).ResourceMgmt()
 	if err != nil {
 		return fmt.Errorf("failed to create new resource management client: %v", err)
 	}
@@ -127,7 +127,12 @@ func (setup *FabricSetup) InstallCC() error {
 
 	// Install our chaincode on org peers
 	// The resource management client send the chaincode to all peers in its channel in order for them to store it and interact with it later
-	installCCReq := resmgmt.InstallCCRequest{Name: setup.ChainCodeID, Path: setup.ChaincodePath, Version: "1.0", Package: ccPkg}
+	installCCReq := resmgmt.InstallCCRequest{
+		Name: setup.ChainCodeID,
+		Path: setup.ChaincodePath,
+		Version: "1.0",
+		Package: ccPkg,
+	}
 	_, err = setup.admin.InstallCC(installCCReq)
 	if err != nil {
 		return fmt.Errorf("failed to install cc to org peers %v", err)
@@ -154,7 +159,7 @@ func (setup *FabricSetup) InstantiateCC() error {
 		return fmt.Errorf("failed to initialize sdk: %v", err)
 	}
 	// Org1 Admin
-	setup.admin, err = setup.sdk.NewClient(fabsdk.WithUser(setup.OrgAdmin), fabsdk.WithOrg(setup.OrgName1)).ResourceMgmt()
+	setup.admin, err = setup.sdk.NewClient(fabsdk.WithUser(setup.OrgAdmin)).ResourceMgmt()
 	if err != nil {
 		return fmt.Errorf("failed to create new resource management client: %v", err)
 	}
@@ -163,7 +168,7 @@ func (setup *FabricSetup) InstantiateCC() error {
 	// The chaincode policy is required if your transactions must follow some specific rules
 	// If you don't provide any policy every transaction will be endorsed, and it's probably not what you want
 	// In this case, we set the rule to : Endorse the transaction if the transaction have been signed by a member from any org
-	ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP","Org2MSP"})
+	ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP", "Org2MSP"})
 
 	// Instantiate our chaincode on org peers
 	// The resource management client tells to all peers in its channel to instantiate the chaincode previously installed
@@ -175,20 +180,17 @@ func (setup *FabricSetup) InstantiateCC() error {
 		Args:    initArgs,
 		Policy:  ccPolicy,
 	}
-	err = setup.admin.InstantiateCC(setup.ChannelID, initRequest)
+	// collect all of the peers
+	discoveryProvider, err := staticdiscovery.NewDiscoveryProvider(setup.sdk.Config())
+	discoverySvc, err := discoveryProvider.NewDiscoveryService(setup.ChannelID)
+	peers, err := discoverySvc.GetPeers()
+	err = setup.admin.InstantiateCC(setup.ChannelID, initRequest, func(opts *resmgmt.Opts) error {
+		opts.Targets = peers
+		return nil
+	})
 	if err != nil {
 		return fmt.Errorf("failed to instantiate the chaincode: %v", err)
 	}
-
-	// Change to Org2 Admin
-	//setup.admin, err = setup.sdk.NewClient(fabsdk.WithUser(setup.OrgAdmin), fabsdk.WithOrg(setup.OrgName2)).ResourceMgmt()
-	//if err != nil {
-	//	return fmt.Errorf("failed to create new resource management client: %v", err)
-	//}
-	//err = setup.admin.InstantiateCC(setup.ChannelID, initRequest)
-	//if err != nil {
-	//	return fmt.Errorf("failed to instantiate the chaincode: %v", err)
-	//}
 
 	fmt.Println("\n===== Chaincode Instantiate Success ====")
 	return nil
@@ -206,15 +208,6 @@ func (setup *FabricSetup) Invoke() (string, error) {
 		return "", fmt.Errorf("failed to create new channel client: %v", err)
 	}
 
-	eventID := "eventInvoke"
-
-	// Register a notification handler on the client
-	notifier := make(chan *chclient.CCEvent)
-	rce, err := setup.client.RegisterChaincodeEvent(notifier, setup.ChainCodeID, eventID)
-	if err != nil {
-		return "", fmt.Errorf("failed to register chaincode evet: %v", err)
-	}
-
 	// Create a request (proposal) and send it
 	invokeArgs := [][]byte{[]byte("a"), []byte("b"), []byte("10")}
 	invokeRequest := chclient.Request{
@@ -226,17 +219,6 @@ func (setup *FabricSetup) Invoke() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to move funds: %v", err)
 	}
-
-	// Wait for the result of the submission
-	select {
-	case ccEvent := <-notifier:
-		fmt.Printf("Received CC event: %s\n", ccEvent)
-	case <-time.After(time.Second * 120):
-		return "", fmt.Errorf("did NOT receive CC event for eventId(%s)", eventID)
-	}
-
-	// Unregister the notification handler previously created on the client
-	err = setup.client.UnregisterChaincodeEvent(rce)
 
 	fmt.Println("\n===== Chaincode Invoke Success ====")
 	return response.TransactionID.ID, nil
@@ -255,10 +237,10 @@ func (setup *FabricSetup) Query() (string, error) {
 	}
 
 	// Prepare arguments
-	queryArgs := [][]byte{[]byte("invoke"), []byte("query"), []byte("a")}
+	queryArgs := [][]byte{[]byte("a")}
 	queryRequest := chclient.Request{
 		ChaincodeID: setup.ChainCodeID,
-		Fcn: "invoke",
+		Fcn: "query",
 		Args: queryArgs,
 	}
 	response, err := setup.client.Query(queryRequest)
@@ -266,5 +248,7 @@ func (setup *FabricSetup) Query() (string, error) {
 		return "", fmt.Errorf("failed to query: %v", err)
 	}
 
+	fmt.Println("\nChaincode Query Result: ", string(response.Payload))
+	fmt.Println("\n===== Chaincode Query Success ====")
 	return string(response.Payload), nil
 }
