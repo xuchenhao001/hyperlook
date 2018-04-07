@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric-sdk-go/api/apitxn/chclient"
 	chmgmt "github.com/hyperledger/fabric-sdk-go/api/apitxn/chmgmtclient"
@@ -107,7 +109,7 @@ func (setup *FabricSetup) JoinChannel() error {
 }
 
 // Install chaincode, package chaincode to tarGZ first
-func (setup *FabricSetup) InstallCC() error {
+func (setup *FabricSetup) InstallCC(version string) error {
 	// Initialize the SDK with the configuration file
 	err := setup.localConfig()
 	if err != nil {
@@ -130,7 +132,7 @@ func (setup *FabricSetup) InstallCC() error {
 	installCCReq := resmgmt.InstallCCRequest{
 		Name: setup.ChainCodeID,
 		Path: setup.ChaincodePath,
-		Version: "1.0",
+		Version: version,
 		Package: ccPkg,
 	}
 	_, err = setup.admin.InstallCC(installCCReq)
@@ -152,7 +154,7 @@ func (setup *FabricSetup) InstallCC() error {
 	return nil
 }
 
-func (setup *FabricSetup) InstantiateCC() error {
+func (setup *FabricSetup) InstantiateCC(version string) error {
 	// Initialize the SDK with the configuration file
 	err := setup.localConfig()
 	if err != nil {
@@ -176,7 +178,7 @@ func (setup *FabricSetup) InstantiateCC() error {
 	initRequest := resmgmt.InstantiateCCRequest{
 		Name:    setup.ChainCodeID,
 		Path:    setup.ChaincodePath,
-		Version: "1.0",
+		Version: version,
 		Args:    initArgs,
 		Policy:  ccPolicy,
 	}
@@ -251,4 +253,39 @@ func (setup *FabricSetup) Query() (string, error) {
 	fmt.Println("\nChaincode Query Result: ", string(response.Payload))
 	fmt.Println("\n===== Chaincode Query Success ====")
 	return string(response.Payload), nil
+}
+
+func (setup *FabricSetup) Upgrade() error {
+	timestamp := time.Now().Unix()
+	version := strconv.FormatInt(timestamp, 10)
+	// Install newer chaincode first
+	err := setup.InstallCC(version)
+	if err != nil {
+		return fmt.Errorf("failed to install new chaincode: %v", err)
+	}
+
+	// Upgrade chaincode
+	ccPolicy := cauthdsl.SignedByAnyMember([]string{"Org1MSP", "Org2MSP"})
+	upgradeArgs := [][]byte{[]byte("init"), []byte("a"), []byte("1000"), []byte("b"), []byte("2000")}
+	upgradeRequest := resmgmt.UpgradeCCRequest{
+		Name:    setup.ChainCodeID,
+		Path:    setup.ChaincodePath,
+		Version: version,
+		Args:    upgradeArgs,
+		Policy:  ccPolicy,
+	}
+	// collect all of the peers
+	discoveryProvider, err := staticdiscovery.NewDiscoveryProvider(setup.sdk.Config())
+	discoverySvc, err := discoveryProvider.NewDiscoveryService(setup.ChannelID)
+	peers, err := discoverySvc.GetPeers()
+	err = setup.admin.UpgradeCC(setup.ChannelID, upgradeRequest, func(opts *resmgmt.Opts) error {
+		opts.Targets = peers
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to upgrade new chaincode: %v", err)
+	}
+
+	fmt.Println("\n===== Chaincode Upgrade Success ====")
+	return nil
 }

@@ -45,7 +45,7 @@ func joinChannel() {
 
 func installChaincode() {
 	// 2 organizations install the chaincode
-	err := fabricSetup.InstallCC()
+	err := fabricSetup.InstallCC("1.0")
 	if err != nil {
 		fmt.Printf("Unable to install chaincode: %v\n", err)
 	}
@@ -53,7 +53,7 @@ func installChaincode() {
 
 func instantiateChaincode() {
 	// 2 organizations instantiate the chaincode
-	err := fabricSetup.InstantiateCC()
+	err := fabricSetup.InstantiateCC("1.0")
 	if err != nil {
 		fmt.Printf("Unable to instantiate chaincode: %v\n", err)
 	}
@@ -73,6 +73,13 @@ func queryChaincode() {
 	}
 }
 
+func upgradeChaincode() {
+	err := fabricSetup.Upgrade()
+	if err != nil {
+		fmt.Printf("Unable to upgrade chaincode: %v\n", err)
+	}
+}
+
 func main() {
 	flag.Parse()
 
@@ -89,8 +96,14 @@ func main() {
 			invokeChaincode()
 		case "queryCC":
 			queryChaincode()
+	    case "upgradeCC":
+			upgradeChaincode()
+		case "version":
+			fmt.Println("  Hyperledger Fabric network control, blongs to hyperlook. \n" +
+				"  Writen by Xu Chenhao <xu.chenhao@hotmail.com>\n" +
+				"  Version: 1.0.0")
 		default:
 			fmt.Println("Please input an operation: " +
-				"createchannel joinchannel installCC instantiateCC invokeCC queryCC")
+				"createchannel joinchannel installCC instantiateCC invokeCC queryCC upgradeCC")
 	}
 }

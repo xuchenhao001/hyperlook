@@ -106,19 +106,17 @@ function generateChannelArtifacts() {
   echo
 }
 
-function preparecli() {
+function prepareEnv() {
 	rm -rf /var/fabric-net/chaincode/
-	rm -rf /var/fabric-net/scripts/
 	rm -rf /var/fabric-net/production
 	rm -rf /tmp/hyperlook
 
 	cp -r chaincode /var/fabric-net/
-	cp -r scripts /var/fabric-net/
 }
 
 
 generateCerts
 replacePrivateKey
 generateChannelArtifacts
-preparecli
+prepareEnv
 
