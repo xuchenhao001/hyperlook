@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-k8s-rules
+  namespace: monitoring
+  labels:
+    role: prometheus-rulefiles
+    prometheus: k8s
+data:
+  alertmanager.rules.yaml: |+
+    groups:
+    - name: alertmanager.rules
+      rules:
+      - alert: PeerInstallChaincodeTooSlow
+        expr: peer_install_chaincode_time_seconds > 0.005
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} install chaincode too slow, longer than 0.005s.
+      - alert: PeerInstantiateChaincodeTooSlow
+        expr: peer_instantiate_chaincode_time_seconds > 30
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} instantiate chaincode too slow, longer than 30s.
+      - alert: PeerInvokeChaincodeTooSlow
+        expr: peer_invoke_chaincode_time_seconds > 23
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} invoke chaincode too slow, longer than 23s.
+      - alert: PeerJoinChannelTooSlow
+        expr: peer_join_channel_time_seconds > 0.5
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} join channel too slow, longer than 0.5s.
+      - alert: PeerQueryChaincodeTooSlow
+        expr: peer_query_chaincode_time_seconds > 0.1
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} query too slow, longer than 0.1s.
+      - alert: PeerUpgradeChaincodeTooSlow
+        expr: peer_upgrade_chaincode_time_seconds > 65
+        for: 5m
+        labels:
+          service: Fabric
+          severity: warning
+        annotations:
+          description: Peer {{ $labels.container_name }} upgrade chaincode too slow, longer than 65s.
