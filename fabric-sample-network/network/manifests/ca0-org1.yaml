@@ -1,58 +1,58 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: ca0-org2
+  name: ca0-org1
   namespace: fabric-net
   labels:
-    k8s-app: ca0-org2
+    k8s-app: ca0-org1
 spec:
   ports:
   - name: "7054"
     port: 7054
     targetPort: 7054
   selector:
-    k8s-app: ca0-org2
+    k8s-app: ca0-org1
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: ca0-org2
+  name: ca0-org1
   namespace: fabric-net
   labels:
-    k8s-app: ca0-org2
+    k8s-app: ca0-org1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      k8s-app: ca0-org2
+      k8s-app: ca0-org1
   template:
     metadata:
       labels:
-        k8s-app: ca0-org2
+        k8s-app: ca0-org1
     spec:
       containers:
       - args:
         - sh
         - -c
-        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org2.fabric-net.svc.cluster.local-cert.pem
-          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/6823c400052a58cccb65064546781c30e2032c7d2933be888c0e38636e460d65_sk -b
+        - fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net.svc.cluster.local-cert.pem
+          --ca.keyfile /etc/hyperledger/fabric-ca-server-config/81127191200a0d6db1dd86db61f62da217ce1e4f5db3cbf7a13615cca88b4ea8_sk -b
           admin:adminpw -d
         env:
         - name: FABRIC_CA_HOME
           value: /etc/hyperledger/fabric-ca-server
         - name: FABRIC_CA_SERVER_CA_NAME
-          value: ca0-org2
+          value: ca0-org1.fabric-net.svc.cluster.local
         - name: FABRIC_CA_SERVER_TLS_CERTFILE
-          value: /etc/hyperledger/fabric-ca-server-config/ca0-org2.fabric-net.svc.cluster.local-cert.pem
+          value: /etc/hyperledger/fabric-ca-server-config/ca0-org1.fabric-net.svc.cluster.local-cert.pem
         - name: FABRIC_CA_SERVER_TLS_ENABLED
           value: "true"
         - name: FABRIC_CA_SERVER_TLS_KEYFILE
-          value: /etc/hyperledger/fabric-ca-server-config/6823c400052a58cccb65064546781c30e2032c7d2933be888c0e38636e460d65_sk
+          value: /etc/hyperledger/fabric-ca-server-config/81127191200a0d6db1dd86db61f62da217ce1e4f5db3cbf7a13615cca88b4ea8_sk
         - name: GODEBUG
           value: netdns=go
         image: hyperledger/fabric-ca:latest
         imagePullPolicy: Never
-        name: ca0-org2
+        name: ca0-org1
         ports:
         - containerPort: 7054
         volumeMounts:
@@ -62,7 +62,7 @@ spec:
       volumes:
       - name: ca
         hostPath:
-          path: /var/fabric-net/crypto-config/peerOrganizations/org2.fabric-net.svc.cluster.local/ca/
+          path: /var/fabric-net/crypto-config/peerOrganizations/org1.fabric-net.svc.cluster.local/ca/
       nodeSelector:
         bc: "true"
 

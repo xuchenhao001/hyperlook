@@ -6,11 +6,9 @@ To start up an example Hyperledger Fabric network:
 $ ./image-pull.sh
 $ ./download-binaries.sh
 $ cp bin/* /usr/bin/
-$ cd start-network
-$ ./generateCerts.sh
 $ kubectl create ns fabric-net
 $ kubectl label node <fabric-net-node> bc=true
-$ kubectl create -f manifest/
+$ ./start-network.sh
 ```
 
 To operate your fabric network:
@@ -25,6 +23,12 @@ $ netctl instantiateCC
 $ netctl invokeCC 
 $ netctl queryCC 
 $ netctl upgradeCC
+
+# OR
+
+$ docker ps |grep cli
+$ docker exec -ti <your-cli-containerID> bash
+$ scripts/script.sh
 ```
 
 Tear down your network:

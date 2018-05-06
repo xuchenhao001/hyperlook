@@ -112,6 +112,7 @@ function prepareEnv() {
 	rm -rf /tmp/hyperlook
 
 	cp -r chaincode /var/fabric-net/
+	cp -r scripts /var/fabric-net/
 }
 
 
