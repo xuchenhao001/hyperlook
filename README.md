@@ -5,7 +5,11 @@ Hyperledger Fabric monitoring project based on kubernetes.
 This project is meant to monitor your Fabric network's status. The monitoring targets have 2 part:
 
 * Fabric peers' running status
-* Fabric peer' transaction performance (join channel, install chaincode, instantiate chaincode, invoke, and query)
+* Fabric peers' transaction performance (join channel, install chaincode, instantiate chaincode, invoke, and query)
+
+![](https://github.com/xuchenhao001/hyperlook/blob/master/images/peerRunningStatus.png)
+
+![](https://github.com/xuchenhao001/hyperlook/blob/master/images/peerTransactionPerformance.png)
 
 There are 5 parts of this project:
 
